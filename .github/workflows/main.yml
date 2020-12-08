@@ -1,0 +1,26 @@
+name: Patch
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+
+  release:
+    name: Build & release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Docker
+        uses: docker/setup-buildx-action@v1
+      - name: Docker login
+        uses: docker/login-action@v1 
+        with:
+          registry: ${{ secrets.NEXUS_HOST }}/${{ secrets.NEXUS_REPOSITORY }}
+          username: ${{ secrets.NEXUS_USERNAME }}
+          password: ${{ secrets.NEXUS_PASSWORD }}
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.NEXUS_HOST }}/${{ secrets.NEXUS_REPOSITORY }}/gonorth:latest ./
+      - name: Push Docker image
+        run: docker push ${{ secrets.NEXUS_HOST }}/${{ secrets.NEXUS_REPOSITORY }}/gonorth:latest
